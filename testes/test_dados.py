@@ -89,6 +89,15 @@ class TestTagESerie(unittest.TestCase):
         registros, _ = dados.ler_log("2026-10-05 08:00:00 INFO PT102 contagens=1623")
         self.assertEqual(len(dados.serie(registros, "XX9", "contagens")),0)
 
+class TestConversoresBorda(unittest.TestCase):
+    """na issue 2, o 'late binding'."""
+
+    def test_cada_convertedor_usa_o_fator_da_sua_tag(self):
+        """com três tags, nenhum conversor usa o fator da última tag do dicionáio"""
+        conv = dados.criar_conversores({"A1": 2.0, "B2": 3.0, "C3": 5.0})
+        self.assertAlmostEqual(conv["A1"](10.0),20.0)
+        self.assertAlmostEqual(conv["B2"](10.0),30.0)
+        self.assertAlmostEqual(conv["C3"](10.0),50.0)
 
 # Acrescente abaixo as suas classes de teste, começando pelos testes de regressão da
 # issue #4 (escreva-os ANTES de corrigir o defeito e confirme que falham).
@@ -96,3 +105,4 @@ class TestTagESerie(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

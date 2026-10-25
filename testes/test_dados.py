@@ -99,6 +99,18 @@ class TestConversoresBorda(unittest.TestCase):
         self.assertAlmostEqual(conv["B2"](10.0),30.0)
         self.assertAlmostEqual(conv["C3"](10.0),50.0)
 
+class TestMemoriaEConversaoBorda(unittest.TestCase):
+    """na issue 3, para testar medir_memoria e converter_vetorizado"""
+
+    def test_memoria_nao_aceita_array_de_float(self):
+        """medir_memoria só aceita 'ndarray' de inteiros, ou seja, float deve levantar ValueError"""
+        with self.assertRaises(ValueError): dados.medir_memoria(np.array([1.0,2.0,3.0]))
+
+    def test_vetorizado_nao_estoura_uint16(self):
+        """a conversão vetorizada de um uint16 não pode dar overflow"""
+        r = dados.converter_vetorizado(np.array([4095],dtype=np.uint16))
+        self.assertAlmostEqual(float(r[0]),600.0)
+        
 # Acrescente abaixo as suas classes de teste, começando pelos testes de regressão da
 # issue #4 (escreva-os ANTES de corrigir o defeito e confirme que falham).
 

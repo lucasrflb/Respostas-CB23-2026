@@ -18,34 +18,77 @@ class TestPorTagExemplo(unittest.TestCase):
         """Sem registros, por_tag devolve uma lista vazia."""
         self.assertEqual(por_tag([], "PT101"), [])
 
-class TesteMediaMovelRegressao(unittest.TestCase):
+class TestMediaMovelRegressao(unittest.TestCase):
     """na issue 4, media_movel estava devolvendo um valor a menos."""
 
-    def teste_tamanho_600_janela_30(self):
+    def test_tamanho_600_janela_30(self):
         """como relatado, deveria dar 571 valores"""
         s = SerieTemporal.de_lista(np.arange(600.0))
         self.assertEqual(len(s.media_movel(30)),571)
 
-    def teste_janela_igual_ao_tamanho(self):
+    def test_janela_igual_ao_tamanho(self):
         """a janela do tamanho da série precisar dar o valor da média do tubo"""
         s = SerieTemporal.de_lista([2.0,4.0,6.0,8.0])
         r = s.media_movel(4)
         self.assertEqual(len(r),1)
         self.assertAlmostEqual(float(r[0]),5.0)
 
-    def teste_janela_um_devolve_a_propria_serie(self):
+    def test_janela_um_devolve_a_propria_serie(self):
         """a janela 1 devolve a mesma série, porque não 'suaviza' nada"""
         s = SerieTemporal.de_lista([3.0,1.0,4.0,1.0,5.0])
         self.assertTrue(np.allclose(s.media_movel(1),s))
         
-class TesteReamostrar(unittest.TestCase):
+class TestReamostrar(unittest.TestCase):
     "na issue 5, para fazer as medias por bloco"
 
-    def teste_sobra_no_fim_eh_descartada(self):
+    def test_sobra_no_fim_eh_descartada(self):
         """com 7 pontos e k = 3, o último ponto deve ser descartado"""
         r = SerieTemporal.de_lista([1,2,3,4,5,6,7]).reamostrar(3)
         self.assertEqual(len(r),2)
         self.assertTrue(np.allclose(r,[2.0,5.0]))
+
+class TestLerLogContrato(unittest.TestCase):
+    """na issue 1, regras de ler_log que os testes de aceitacao nao verificam"""
+
+    def test_linhas_vazias_nao_sao_invalidas(self):
+        """só ignoradas, não invalidadas"""
+        registros, invalidas = dados.ler_log(f"\n \n{"2026-10-05 08:00:00 INFO PT102 contagens=1623"}\n\n")
+        self.assertEqual(len(registros),1)
+        self.assertEqual(invalidas,[])
+
+    def test_data_impossivel_e_invalida(self):
+        """mês 13 (★!) vai ser lido, mas deve ser inválido"""
+        linha = "2026-13-05 08:00:00 INFO PT102 contagens=1623"
+        registros, invalidas = dados.ler_log(linha)
+
+        self.assertEqual(registros,[])
+        self.assertEqual(invalidas, [linha])
+
+    def test_resto_sem_par_chave_valor_eh_invalido(self):
+        """se uma linha não tem nenhum chave=valor no resto, tem que ser inválida"""
+        linha = "2026-10-05 08:00:00 INFO PT102 sem_par_heheheeee"
+        registros, invalidas = dados.ler_log(linha)
+        self.assertEqual(registros, [])
+        self.assertEqual(invalidas, [linha])
+
+    def test_ordem_original_dos_registros(self):
+        """as linhas devem sair na ordem em que aparecem no texto"""
+        texto = ("2026-10-05 08:00:06 INFO PT102 contagens=2\n""2026-10-05 08:00:00 INFO PT102 contagens=1\n")
+        registros, _ = dados.ler_log(texto)
+        self.assertEqual([r.valores["contagens"] for r in registros], [2.0, 1.0])
+
+class TestTagESerie(unittest.TestCase):
+    """na issue 1, para testar valida_tag e serie"""
+
+    def test_valida_tag_nao_aceita_quebra_de_linha(self):
+        """o fullmatch não deixa passar uma tag seguida de uma quebra de linha"""
+        self.assertFalse(dados.valida_tag("PT101\n"))
+
+    def test_serie_de_tag_inexistente_eh_vazia(self):
+        """tag que não existe no log dá uma série vazia"""
+        registros, _ = dados.ler_log("2026-10-05 08:00:00 INFO PT102 contagens=1623")
+        self.assertEqual(len(dados.serie(registros, "XX9", "contagens")),0)
+
 
 # Acrescente abaixo as suas classes de teste, começando pelos testes de regressão da
 # issue #4 (escreva-os ANTES de corrigir o defeito e confirme que falham).

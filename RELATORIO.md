@@ -27,7 +27,7 @@ os números da sua execução; cada resposta cabe em até 6 linhas, além das ta
 
 ### R5 — Previsão × medição (Etapa 3)
 
-Previsões registradas no commit: <!-- cole o hash curto do commit de previsões -->
+Previsões registradas no commit: 16ceca0
 
 | Grandeza | Previsão | Medido |
 | --- | --- | --- |
@@ -51,4 +51,4 @@ Previsões registradas no commit: <!-- cole o hash curto do commit de previsões
 
 ### R7 — Issue #4
 
-<!-- Sintoma; o teste de regressão (nome); a causa, em termos da soma acumulada; a correção; por que os testes de aceitação não pegaram o defeito; mais um caso que eles não cobrem e qual teste seu o cobre. -->
+Quando fazíamos media_movel(30) ao invés de 571 = 600 - 30 + 1 valores, obtíamos só 570. Os testes TesteMediaMovelRegressão (principalmente teste_tamanho_600_janela_30) davam erro. Isso acontecia porque a soma acumulada estava começando do índice 0, e não no valor 0, então acumulada[janela:] - acumulada[:-janela] perde a primeira janela. Então, foi colocado um 0 no começo e retorno como SerieTemporal. Os testes estavam pegando porque estavam conferindo só tipos, erros, sem ver o tamanho dos intervalos. Um caso legal é que a janela igual a 1 deve ser do tamanho da série, e é coberto pelo teste teste_janela_igual_ao_tamanho.

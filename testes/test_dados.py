@@ -28,10 +28,10 @@ class TestMediaMovelRegressao(unittest.TestCase):
 
     def teste_janela_igual_ao_tamanho(self):
         """a janela do tamanho da série precisar dar o valor da média do tubo"""
-        s = SerieTemporal.de_lista([2.0,3.0,4.0,5.0])
+        s = SerieTemporal.de_lista([2.0,4.0,6.0,8.0])
         r = s.media_movel(4)
         self.assertEqual(len(r),1)
-        self.assertAlmostEqual(float(r[0],5.0))
+        self.assertAlmostEqual(float(r[0]),5.0)
 
     def teste_primeira_janela_entra_no_resultado(self):
         """o primeiro valor precisa ser a média de self[0:janela]"""
@@ -43,8 +43,6 @@ class TestMediaMovelRegressao(unittest.TestCase):
         s = SerieTemporal.de_lista([3.0,1.0,4.0,1.0,5.0])
         self.assertTrue(np.allclose(s.media_movel(1),s))
         
-
-
 
 # Acrescente abaixo as suas classes de teste, começando pelos testes de regressão da
 # issue #4 (escreva-os ANTES de corrigir o defeito e confirme que falham).

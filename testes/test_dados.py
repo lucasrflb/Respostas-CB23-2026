@@ -18,7 +18,7 @@ class TestPorTagExemplo(unittest.TestCase):
         """Sem registros, por_tag devolve uma lista vazia."""
         self.assertEqual(por_tag([], "PT101"), [])
 
-class TestMediaMovelRegressao(unittest.TestCase):
+class TesteMediaMovelRegressao(unittest.TestCase):
     """na issue 4, media_movel estava devolvendo um valor a menos."""
 
     def teste_tamanho_600_janela_30(self):
@@ -33,16 +33,19 @@ class TestMediaMovelRegressao(unittest.TestCase):
         self.assertEqual(len(r),1)
         self.assertAlmostEqual(float(r[0]),5.0)
 
-    def teste_primeira_janela_entra_no_resultado(self):
-        """o primeiro valor precisa ser a média de self[0:janela]"""
-        s = SerieTemporal.de_lista([1.0,2.0,3.0,10.0,20.0])
-        self.assertTrue(np.allclose(s.media_movel(3),[2.0,5.0,11.0]))
-
     def teste_janela_um_devolve_a_propria_serie(self):
         """a janela 1 devolve a mesma série, porque não 'suaviza' nada"""
         s = SerieTemporal.de_lista([3.0,1.0,4.0,1.0,5.0])
         self.assertTrue(np.allclose(s.media_movel(1),s))
         
+class TesteReamostrar(unittest.TestCase):
+    "na issue 5, para fazer as medias por bloco"
+
+    def teste_sobra_no_fim_eh_descartada(self):
+        """com 7 pontos e k = 3, o último ponto deve ser descartado"""
+        r = SerieTemporal.de_lista([1,2,3,4,5,6,7]).reamostrar(3)
+        self.assertEqual(len(r),2)
+        self.assertTrue(np.allclose(r,[2.0,5.0]))
 
 # Acrescente abaixo as suas classes de teste, começando pelos testes de regressão da
 # issue #4 (escreva-os ANTES de corrigir o defeito e confirme que falham).

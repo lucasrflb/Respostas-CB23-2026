@@ -65,4 +65,10 @@ class SerieTemporal(np.ndarray):
         completam um bloco são descartados. Usa `reshape`, sem laços. Levanta `ValueError`
         se `k < 1` ou `k > len(self)`.
         """
-        raise NotImplementedError("issue #5: reamostrar ainda não foi implementado")
+        if k< 1 or k> len(self):
+            raise ValueError(f"o número de blocos completos deve estar entre 1 e {len(self)}; recebi {k}")
+        blocos = len(self)//k #numero inteiro
+        return self[:blocos*k].reshape(blocos,k).mean(axis=1)
+        #o self[:blocos*k] tira os a mais do final se tiver,
+        #o reshape arrumar os dados numa matriz com uma linha por bloco (pedi dica a IA para descobrir isso)
+
